@@ -127,37 +127,41 @@ Please note that a single model is used across all ad networks publishing the ap
 | 5 | 4 | 3 | 2 | 1 | 0 |
 | --- | --- | --- | --- | --- | --- | 
 
-`_Table 2: Conversion value bitmap`
+`Table 2: Conversion value bitmap`
 
 List of supported models:
 
-1. Revenue model
-	- Bits [0:3] : 4 bits to encode different buckets of IAP/Ad Revenue (See Appendix A for explicit variant of this model)
-	- Bits [4:5] : 2 bits to encode the count of days since the install, supporting 0-3 days
+### Revenue model
 
-2. Retention model
-	- Bits [0:5] 6 bits to encode the count of days since the install
-	- Retention is only recorded only as long as the user opens the app every day.
+Bits [0:3] : 4 bits to encode different buckets of IAP/Ad Revenue (See Appendix A for explicit variant of this model)
+Bits [4:5] : 2 bits to encode the count of days since the install, supporting 0-3 days
 
-3. Simple Event-based model
-	- Bits [0:2] 3 bits that can represent different events, including the initial install event.
+### Retention model
+Bits [0:5] 6 bits to encode the count of days since the install
+Retention is only recorded only as long as the user opens the app every day.
+
+### Simple Event-based model
+
+Bits [0:2] 3 bits that can represent different events, including the initial install event.
 For example:
 `001` = install
 `010` = sign up
 `100` = first purchase
 `011` = third purchase
 
-	- Bits [3:5] 3 bits that can represent days since install, supporting 0-7 days
+Bits [3:5] 3 bits that can represent days since install, supporting 0-7 days
 
-4. Non-linear event-based optimization
-	- This model is a variant of model #1 or #3, where the first X values are used to represent simple day changes, until an important conversion event is happening
-	- After first conversion happened, following conversion values will be all event-based
-	- Advertiser can also choose a certain number of days (e.g., first 3 days) they want to track
+### Non-linear event-based optimization
 
-5. Predicted LTV-based optimization
-	- Existing pLTV modeling can be used to dynamically manage conversions
-	- Conversion events can be finetuned at the device level taking into account pLTV, which for mobile games for example can be typically established on the first 1-3 days.
-	- Conversion management can then be done at higher resolution given the predicted LTV is established for the device.
+This model is a variant of model #1 or #3, where the first X values are used to represent simple day changes, until an important conversion event is happening.
+
+After the first conversion happened, following conversion values will be all event-based. Advertisers can also choose a certain number of days (e.g., first 3 days) they want to track.
+
+### Predicted LTV-based optimization
+
+- Existing pLTV modeling can be used to dynamically manage conversions.
+- Conversion events can be finetuned at the device level taking into account pLTV, which for mobile games for example can be typically established on the first 1-3 days.
+- Conversion management can then be done at higher resolution given the predicted LTV is established for the device.
 
 > We expect to continue and update the Supported Models section as new advertiser use cases will arise and new methods will become available
 
