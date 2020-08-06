@@ -1,4 +1,5 @@
 
+
 # SKAN: A standard for the implementation of SKAdNetwork
 ### Version 1.1
 
@@ -81,48 +82,40 @@ SKAdNetwork 2.0 includes a mechanism to perform post-install conversion measurem
 
 The mechanism works in the following way:
 
-- Once registerAppForAdNetworkAttribution() is called for the first time, a 24-hour timer will begin - we’ll call it “Timer 1”.
-- The app can then call the updateConversionValue() function and provide a 6-bit number (0-63), which is the conversion value. The app may do so as long as Timer 1 hasn’t expired.
-Every subsequent call to updateConversionValue() with a higher value than the previous value will update the conversion value, and reset Timer 1, to get a new 24-hour window.
-Once Timer 1 expires, the operating system will randomly pick a new timer (again between 0 to 24 hours), and create “Timer 2”. At this point, any subsequent calls to updateConversionValue() are meaningless.
-Once Timer 2 expires, the device will send a postback to the registered SKAdNetwork URL (the appropriate MMP registration according to 2.2).
-The postback will contain the conversion value (which, as previously mentioned, is not digitally signed
+1. Once registerAppForAdNetworkAttribution() is called for the first time, a 24-hour timer will begin - we’ll call it “Timer 1”.
+2. The app can then call the updateConversionValue() function and provide a 6-bit number (0-63), which is the conversion value. The app may do so as long as Timer 1 hasn’t expired.
+3. Every subsequent call to updateConversionValue() with a higher value than the previous value will update the conversion value, and reset Timer 1, to get a new 24-hour window.
+4. Once Timer 1 expires, the operating system will randomly pick a new timer (again between 0 to 24 hours), and create “Timer 2”. At this point, any subsequent calls to updateConversionValue() are meaningless.
+5. Once Timer 2 expires, the device will send a postback to the registered SKAdNetwork URL (the appropriate MMP registration according to 2.2).
+6. The postback will contain the conversion value (which, as previously mentioned, is **not signed** by Apple)
 
-Conversion value is the only mechanism for an advertiser to connect the post-install activity to an app install campaign and achieve some form of CPA/ROAS, which is why it’s imperative that advertisers are intelligent about how they manage this value.
+Conversion value is the **only mechanism** for an advertiser to connect the post-install activity to an app install campaign and achieve some form of CPA/ROAS, which is why it’s imperative that advertisers are intelligent about how they manage this value.
 
 <a name="a2.2"></a>
 ## 2.2 - Existing Limitations
 The following limitations exist:
-Conversion values are limited to 64 values (6 bits).
-Conversion values will only trigger within the specific timing constraints.
-Advertisers may want to change how conversions are represented and optimized without needing to deploy changes to the app on every change.
+- Conversion values are limited to 64 values (6 bits).
+- Conversion values will only trigger within the specific timing constraints.
+- Advertisers may want to change how conversions are represented and optimized without needing to deploy changes to the app on every change.
 
 <a name="a2.3"></a>
 ## 2.3- Intelligent conversion value management
 As part of SKAN, the MMP should manage this logic for the advertiser, and enable an automated and standardized mechanism for managing conversion values.
 
 This mechanism is designed for the following purposes:
-Provide the advertiser an easy way to report key metrics in a standardized and well thought out method.
-Provide the infrastructure for reporting key metrics like ROAS or CPA.
-Provide a standard set of conversion values for ad networks for their optimization purposes.
-Ensure compatibility, whenever possible, with existing event postback integrations.
+- Provide the advertiser an easy way to report key metrics in a standardized and well thought out method.
+- Provide the infrastructure for reporting key metrics like ROAS or CPA.
+- Provide a standard set of conversion values for ad networks for their optimization purposes.
+- Ensure compatibility, whenever possible, with existing event postback integrations.
 
 <a name="a2.4"></a>
 ## 2.4 - conversion value management data flow
 
-Each event and session tracked by the MMP SDK also queries the MMP Server for a conversion value.
-
-
-The MMP server decides on an appropriate conversion value based on past tracked events and other information such as user geo. 
-
-
-The MMP SDK calls updateConversionValue using the value from the server’s response.
-
-
-When an SKAdNetwork postback is handled by the MMP, the conversion value is re-mapped into meaningful events and metrics to be used in reporting.
-
-
-Postbacks are sent to AdNetworks and BI endpoints with the appropriate events and mapped conversion values.
+1. Each event and session tracked by the MMP SDK also queries the MMP Server for a conversion value.
+2. The MMP server decides on an appropriate conversion value based on past tracked events and other information such as user geo. 
+3. The MMP SDK calls updateConversionValue using the value from the server’s response.
+4. When an SKAdNetwork postback is handled by the MMP, the conversion value is re-mapped into meaningful events and metrics to be used in reporting.
+5. Postbacks are sent to AdNetworks and BI endpoints with the appropriate events and mapped conversion values.
 
 <a name="a2.5"></a>
 ## 2.5 - Supported models
@@ -131,51 +124,42 @@ We suggest the following models as the core framework for managing conversions u
 
 Please note that a single model is used across all ad networks publishing the app at a given point in time.
 
+| 5 | 4 | 3 | 2 | 1 | 0 |
+| --- | --- | --- | --- | --- | --- | 
 
-5
-4
-3
-2
-1
-0
-Image 2: Conversion value bitmap
+`_Table 2: Conversion value bitmap`
 
 List of supported models:
 
-Revenue model
-Bits [0:3] : 4 bits to encode different buckets of IAP/Ad Revenue (See Appendix A for explicit variant of this model)
-Bits [4:5] : 2 bits to encode the count of days since the install, supporting 0-3 days
+1. Revenue model
+	- Bits [0:3] : 4 bits to encode different buckets of IAP/Ad Revenue (See Appendix A for explicit variant of this model)
+	- Bits [4:5] : 2 bits to encode the count of days since the install, supporting 0-3 days
 
+2. Retention model
+	- Bits [0:5] 6 bits to encode the count of days since the install
+	- Retention is only recorded only as long as the user opens the app every day.
 
-Retention model
-Bits [0:5] 6 bits to encode the count of days since the install
-Retention is only recorded only as long as the user opens the app every day.
+3. Simple Event-based model
+	- Bits [0:2] 3 bits that can represent different events, including the initial install event.
+For example:
+`001` = install
+`010` = sign up
+`100` = first purchase
+`011` = third purchase
 
+	- Bits [3:5] 3 bits that can represent days since install, supporting 0-7 days
 
-Simple Event-based model
-Bits [0:2] 3 bits that can represent different events, including the initial install event. For example:
-001 = install
-010 = sign up
-100 = first purchase
-011 = third purchase
-Bits [3:5] 3 bits that can represent days since install, supporting 0-7 days
+4. Non-linear event-based optimization
+	- This model is a variant of model #1 or #3, where the first X values are used to represent simple day changes, until an important conversion event is happening
+	- After first conversion happened, following conversion values will be all event-based
+	- Advertiser can also choose a certain number of days (e.g., first 3 days) they want to track
 
+5. Predicted LTV-based optimization
+	- Existing pLTV modeling can be used to dynamically manage conversions
+	- Conversion events can be finetuned at the device level taking into account pLTV, which for mobile games for example can be typically established on the first 1-3 days.
+	- Conversion management can then be done at higher resolution given the predicted LTV is established for the device.
 
-
-
-Non-linear event-based optimization
-This model is a variant of model #1 or #3, where the first X values are used to represent simple day changes, until an important conversion event is happening
-After first conversion happened, following conversion values will be all event-based
-Advertiser can also choose a certain number of days (e.g., first 3 days) they want to track
-
-
-Predicted LTV-based optimization
-Existing pLTV modeling can be used to dynamically manage conversions
-Conversion events can be finetuned at the device level taking into account pLTV, which for mobile games for example can be typically established on the first 1-3 days.
-Conversion management can then be done at higher resolution given the predicted LTV is established for the device.
-
-Important Note: We expect to continue and update the Supported Models section to support various advertiser app use cases, as well as incorporate more sophisticated signals such as predictive LTV for dynamic conversion 
-
+> We expect to continue and update the Supported Models section as new advertiser use cases will arise and new methods will become available
 
 <a name="a2.6"></a>
 ## 2.6 - Frequency of conversion value updates
@@ -183,8 +167,8 @@ Important Note: We expect to continue and update the Supported Models section to
 Conversion values in SKAdNetwork need to be updated every 24 hours once SKAdNetwork is initiated. If an app is not active for more than 24 hours, SKAdNetwork conversion value update will be stopped and a postback will be sent.
 
 Therefore, it is important to:
-Initiate SKAdNetwork tracking at the right time (time of install or other meaningful event)
-Use a model that captures the right activity in the app while still allowing for keep-alive updates if needed
+1. Initiate SKAdNetwork tracking at the right time (time of install or other meaningful event)
+2. Use a model that captures the right activity in the app while still allowing for keep-alive updates if needed
 
 
 <a name="a2.7"></a>
@@ -210,48 +194,25 @@ While the actual details of assigning SKAdNetworkCampaignId values may vary from
 
 Networks will provide an API that will contain the following fields:
 
+- `Start Date` - the start date in which ad impressions used this particular mapping
+- `End Date` - the start date in which ad impressions used this particular mapping
+- `SKCampaignId` - The SKAdNetwork Campaign ID (value between `1-100`)
+- `Country` [optional] - if there’s a different meaning for `SKCampaignId` for this country (`ISO 3166-1 alpha-2 encoding`)
+- `Publisher ID` [optional] - if there’s a different meaning for `SKCampaignId` for this publisher
+- `Campaign ID` - internal ad network campaign ID
+- `Ad Group ID` [optional] - used if ad groups are part of the mapping
+- `Creative ID` [optional] - used if creatives are part of the mapping
 
-Start Date - the start date in which ad impressions used this particular mapping
-End Date - the start date in which ad impressions used this particular mapping
-SKAdNetwork Campaign ID - value between 1-100
-Country [optional] - if there’s a different meaning for SKCampaignId for this country (ISO 3166-1 alpha-2 encoding)
-Publisher ID [optional] - if there’s a different meaning for SKCampaignId for this publisher
-Campaign ID - internal ad network campaign ID
-Ad Group ID [optional] - used if ad groups are part of the mapping
-Creative ID [optional] - used if creatives are part of the mapping
+### Example:
 
-For example:
+Dates | SKCampaignId | Country | Publisher | Campaign Id | Ad Group ID | Creative ID
+--- | --- | --- | --- | --- | --- | ---
+`9/1/2020 - 10/1/2020` | `7` | | | `1238712` | | `848483`
+`9/1/2020 - 10/1/2020` | `7` | `US` | | `1238714` | | `848489`
 
-Dates
-SKCampaignId
-Country
-Publisher
-Campaign Id
-Ad Group ID
-Creative ID
-9/1-10/1
-7
-
-
-
-
-1238712
-
-
-848483
-9/1-10/1
-7
-US
-
-
-1238714
-
-
-848489
-
-SKAdNetwork Campaign ID 7 has 2 meanings:
-In the US - it’s mapped to campaign ID 1238712 and creative ID 848483
-Otherwise - it’s mapped to campaign ID 1238714 and creative ID 848489
+SKAdNetwork Campaign ID `7` has two different mappings:
+- In the US - it’s mapped to campaign ID `1238712` and creative ID `848483`
+- Otherwise - it’s mapped to campaign ID `1238714` and creative ID `848489`
 
 <a name="a4"></a>
 # 4 - Secure Data Flow
@@ -337,8 +298,7 @@ Given that there are already existing attribution integrations between thousands
 
 The SKAN Attribution postback will be a new postback type that is sent in addition to the classic install/event postbacks that exist today (where Device ID is used for attribution). MMPs implementing SKAN will keep populating the existing postback format they have today, while applying some of the following changes:
 
-
-### New Fields:
+#### New Fields:
 
 `attribution_type`
 This existing field typically has the relevant attribution method such as “idfa”, “idfv”, etc.
@@ -371,11 +331,13 @@ Will be populated if the advertiser used the “event model”
 - Cohort length
 - List of event names (e.g. `[“Registration”, “Subscription”, “Tutorial Complete”]`)
 
-### Other fields:
+#### Other fields:
 - In case of an “skadnetwork” postback type, any fields relying on the device or on a 1:1 match with the click will not be available in this particular postback, such as click_id, idfa, idfv and others. These can still be sent in the user-level attribution postback types (upon consent).
 - Other standard attribution fields can still be derived from the SKAdNetwork postback such as the app, timestamp, IP address, country, etc.
 
-As an example, for a single install, an ad network could receive the two following postbacks:
+#### Example
+
+For a single install, an ad network could receive the two following postbacks:
 
 - IDFA-based postback:
 ```
