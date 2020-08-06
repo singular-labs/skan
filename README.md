@@ -246,7 +246,7 @@ Please submit a pull request to this repo to register your network.
 <a name="a4.3"></a>
 ## 4.3 - Secure Data Flow Diagram
 
-
+![Image 1](https://github.com/singular-labs/skan/blob/master/Image%202020-08-06%2007-46-26.png?raw=true "Image 1: Diagram describing the Secure Data Flow design")
 Image 1: Diagram describing the Secure Data Flow design
 
 <a name="a4.4"></a>
