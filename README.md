@@ -82,12 +82,12 @@ SKAdNetwork 2.0 includes a mechanism to perform post-install conversion measurem
 
 The mechanism works in the following way:
 
-1. Once registerAppForAdNetworkAttribution() is called for the first time, a 24-hour timer will begin - we’ll call it “Timer 1”.
-2. The app can then call the updateConversionValue() function and provide a 6-bit number (0-63), which is the conversion value. The app may do so as long as Timer 1 hasn’t expired.
-3. Every subsequent call to updateConversionValue() with a higher value than the previous value will update the conversion value, and reset Timer 1, to get a new 24-hour window.
-4. Once Timer 1 expires, the operating system will randomly pick a new timer (again between 0 to 24 hours), and create “Timer 2”. At this point, any subsequent calls to updateConversionValue() are meaningless.
-5. Once Timer 2 expires, the device will send a postback to the registered SKAdNetwork URL (the appropriate MMP registration according to 2.2).
-6. The postback will contain the conversion value (which, as previously mentioned, is **not signed** by Apple)
+1. Once `registerAppForAdNetworkAttribution()` is called for the first time, a 24-hour timer will begin. We'll call it `Timer 1`.
+2. The app can then call the `updateConversionValue()` function and provide a 6-bit number (values between `0` to `63`), which is the conversion value. The app may do so as long as `Timer 1` hasn’t expired.
+4. Every subsequent call to `updateConversionValue()` with a higher value than the previous value will update the conversion value, and reset `Timer 1`, to get a new 24-hour window.
+5. Once `Timer 1` expires, the operating system will randomly pick a new duration (between 0 to 24 hours), and create `Timer 2`. At this point, any subsequent calls to `updateConversionValue()` are meaningless.
+6. Once `Timer 2` expires, the device will send a postback to the registered SKAdNetwork URL (the appropriate MMP registration according to 2.2).
+7. The postback will contain the conversion value (which, as previously mentioned, is **not signed** by Apple)
 
 Conversion value is the **only mechanism** for an advertiser to connect the post-install activity to an app install campaign and achieve some form of CPA/ROAS, which is why it’s imperative that advertisers are intelligent about how they manage this value.
 
@@ -257,7 +257,7 @@ Image 1: Diagram describing the Secure Data Flow design
 
 - Ad Network Server sends the Ad Response to the Ad Network’s SDK with its signed SKAdNetwork fields. Note that the Publisher App must have all registered Ad Network IDs in its Info.plist
 
-- The Ad Network SDK displays the ad in any desired format. Upon ad click, the Ad Network SDK will call the StoreKit’s loadProductWithParameters function, and includes the SKAdNetwork fields.
+- The Ad Network SDK displays the ad in any desired format. Upon ad click, the Ad Network SDK will call the StoreKit’s `loadProductWithParameters` function, and includes the SKAdNetwork fields.
 
 ### Click Tracking
 
@@ -339,15 +339,15 @@ Will be populated if the advertiser used the “event model”
 
 For a single install, an ad network could receive the two following postbacks:
 
-- IDFA-based postback:
+_IDFA-based postback_:
 ```
-	http://postback.adnetwork.com/conversion/install?src=MMP&
-	attribution_type=idfa&app_id=...&country=...&idfa=...&click_id=...&...
+http://postback.adnetwork.com/conversion/install?src=MMP&
+attribution_type=idfa&app_id=...&country=...&idfa=...&click_id=...&...
 ```
 
-- SKAdNetwork-based postback:
+_SKAdNetwork-based postback_:
 ```
-	http://postback.adnetwork.com/conversion/install?src=MMP&
-	attribution_type=skadnetwork&app_id=...&country=...&
-	skan_postback=b8Qb9BPWPi+ixk\/OiRys...
+http://postback.adnetwork.com/conversion/install?src=MMP&
+attribution_type=skadnetwork&app_id=...&country=...&
+skan_postback=b8Qb9BPWPi+ixk\/OiRys...
 ```
