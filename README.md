@@ -17,11 +17,11 @@
 - [3. SKAN Campaign ID Management](#a3)
 	- [3.1 - Background](#a3.1)
 	- [3.2 - Mapping API](#a3.2)
-- [4 - Secure Data Flow](#a4)
+- [4 - Secure Setup](#a4)
 	- [4.1 - Background](#a4.1)
 	- [4.2 - List of Secure Ad Networks](#a4.2)
 	- [4.3 - Secure Data Flow Diagram](#a4.3)
-	- [4.4 - Detailed Data Flow](#a4.4)
+	- [4.4 - Data Flow for the Secure Setup](#a4.4)
 - [5 - Postback Structures](#a5)
 	- [5.1 - Attribution Postback](#a5.1)
 
@@ -142,12 +142,11 @@ Retention is only recorded only as long as the user opens the app every day.
 
 ### Simple Event-based model
 
-Bits [0:2] 3 bits that can represent different events, including the initial install event.
-For example:
-`001` = install
-`010` = sign up
-`100` = first purchase
-`011` = third purchase
+Bits [0:2] 3 bits that can represent different events, including the initial install event. For example:
+- `001` = install
+- `010` = sign up
+- `100` = first purchase
+- `011` = third purchase
 
 Bits [3:5] 3 bits that can represent days since install, supporting 0-7 days
 
@@ -219,7 +218,7 @@ SKAdNetwork Campaign ID `7` has two different mappings:
 - Otherwise - it’s mapped to campaign ID `1238714` and creative ID `848489`
 
 <a name="a4"></a>
-# 4 - Secure Data Flow
+# 4 - Secure Setup
 
 <a name="a4.1"></a>
 ## 4.1 - Background
@@ -233,8 +232,8 @@ An optional, but highly recommended data flow, puts the advertiser, represented 
 
 This design is achieved by creating specific SKAdNetworkIdentifier registrations for every ad network & MMP pair.
 
-<a name="a2.2"></a>
-## 2.2 - List of Secure Ad Networks
+<a name="a4.2"></a>
+## 4.2 - List of Secure Ad Networks
 
 MMP | Ad Network | SKAdNetworkIdentifier
 --- | --- | ---
@@ -244,14 +243,14 @@ Singular | Unity Ads | `y45688jllp.skadnetwork`
 
 Please submit a pull request to this repo to register your network.
 
-<a name="a2.3"></a>
-## 2.3 - Secure Data Flow Diagram
+<a name="a4.3"></a>
+## 4.3 - Secure Data Flow Diagram
 
 
 Image 1: Diagram describing the Secure Data Flow design
 
-<a name="a2.4"></a>
-## 2.4 - Detailed Data Flow
+<a name="a4.4"></a>
+## 4.4 - Data Flow for the Secure Setup
 
 ### Ad Serving
 
