@@ -310,7 +310,8 @@ This field will now also support a new type named “skadnetwork”
 `skan_postback`
 This will be a base64 encoded value of the JSON object as received in the SKAdNetwork install validation postback (as documented here). An example value would look like this:
 
-```json{
+```json
+{
  "version" : "2.0",
  "ad-network-id" : "com.example",
  "campaign-id" : 73,
