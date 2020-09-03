@@ -321,7 +321,7 @@ This will be a base64 encoded value of the JSON object as received in the SKAdNe
  "timestamp": 1593760672497,
  "attribution-signature" : "MDYCGQCsQ4y8d4BlYU9b8Qb9BPWPi+ixk\/OiRysCGQDZZ8fpJnuqs9my8iSQVbJO\/oU1AXUROYU=",
  "redownload": 1,
- "conversion-value: 20
+ "conversion-value": 20
 }
 ```
 
