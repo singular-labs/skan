@@ -240,6 +240,7 @@ MMP | Ad Network | SKAdNetworkIdentifier
 Singular | ironSource | `DZG6XY7PWJ.skadnetwork`
 Singular | Vungle | `Hdw39hrw9y.skadnetwork`
 Singular | Unity Ads | `y45688jllp.skadnetwork`
+Any | Spyke Media | `44n7hlldy6.skadnetwork`
 
 Please submit a pull request to this repo to register your network.
 
